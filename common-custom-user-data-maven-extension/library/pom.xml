@@ -12,6 +12,18 @@
     <artifactId>common-custom-user-data-maven-library</artifactId>
     <packaging>jar</packaging>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.15.15</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -23,6 +35,10 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>kms</artifactId>
         </dependency>
     </dependencies>
 
@@ -37,6 +53,7 @@
                         <excludes>
                             <!-- already provided by Maven -->
                             <exclude>*:javax.inject</exclude>
+                            <exclude>*:slf4j-api</exclude>
                         </excludes>
                     </artifactSet>
                     <filters>
@@ -44,8 +61,14 @@
                             <artifact>*</artifact>
                             <!-- to avoid warnings for duplicate resources -->
                             <excludes>
+                                <exclude>module-info.class</exclude>
                                 <exclude>META-INF/MANIFEST.MF</exclude>
+                                <exclude>META-INF/LICENSE</exclude>
                                 <exclude>META-INF/LICENSE.txt</exclude>
+                                <exclude>META-INF/NOTICE</exclude>
+                                <exclude>META-INF/NOTICE.txt</exclude>
+                                <exclude>META-INF/DEPENDENCIES</exclude>
+                                <exclude>META-INF/io.netty.versions.properties</exclude>
                             </excludes>
                         </filter>
                     </filters>

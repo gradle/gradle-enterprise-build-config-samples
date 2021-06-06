@@ -1,8 +1,11 @@
 package com.gradle;
 
+import com.acme.KeyManagementService;
 import com.acme.WebserviceClient;
 import com.gradle.maven.extension.api.cache.BuildCacheApi;
 import com.gradle.maven.extension.api.scan.BuildScanApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provide standardized Gradle Enterprise configuration.
@@ -10,25 +13,19 @@ import com.gradle.maven.extension.api.scan.BuildScanApi;
  */
 final class CustomGradleEnterpriseConfig {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomGradleEnterpriseConfig.class);
+
     static void configureBuildScanPublishing(BuildScanApi buildScans) {
         buildScans.value("status", String.valueOf(WebserviceClient.queryStatus()));
     }
 
     static void configureBuildCache(BuildCacheApi buildCache) {
-        /* Example of build cache configuration
-
-        boolean isCiServer = System.getenv().containsKey("CI");
-
-        // Enable the local build cache for all local and CI builds
-        // For short-lived CI agents, it makes sense to disable the local build cache
-        buildCache.getLocal().setEnabled(true);
-
-        // Only permit store operations to the remote build cache for CI builds
-        // Local builds will only read from the remote build cache
-        buildCache.getRemote().setEnabled(true);
-        buildCache.getRemote().setStoreEnabled(isCiServer);
-
-        */
+        try {
+            buildCache.getRemote().getServer().getCredentials()
+                    .setPassword(KeyManagementService.getBuildCachePassword());
+        } catch (Exception e) {
+            LOGGER.warn("Failed to read build cache password", e);
+        }
     }
 
     private CustomGradleEnterpriseConfig() {
