@@ -1,5 +1,6 @@
 package com.gradle;
 
+import com.acme.WebserviceClient;
 import com.gradle.maven.extension.api.cache.BuildCacheApi;
 import com.gradle.maven.extension.api.scan.BuildScanApi;
 
@@ -10,15 +11,7 @@ import com.gradle.maven.extension.api.scan.BuildScanApi;
 final class CustomGradleEnterpriseConfig {
 
     static void configureBuildScanPublishing(BuildScanApi buildScans) {
-        /* Example of build scan publishing configuration
-
-        boolean isCiServer = System.getenv().containsKey("CI");
-
-        buildScans.publishAlways();
-        buildScans.setCaptureGoalInputFiles(true);
-        buildScans.setUploadInBackground(!isCiServer);
-
-        */
+        buildScans.value("status", String.valueOf(WebserviceClient.queryStatus()));
     }
 
     static void configureBuildCache(BuildCacheApi buildCache) {
