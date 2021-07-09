@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+    <exportedPackages>
+        <exportedPackage>com.gradle</exportedPackage>
+    </exportedPackages>
+    <exportedArtifacts>
+        <exportedArtifact>com.gradle:common-custom-user-data-maven-extension</exportedArtifact>
+    </exportedArtifacts>
+</extension>

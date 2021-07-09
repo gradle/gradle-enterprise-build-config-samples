@@ -8,11 +8,16 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.monitor.logging.DefaultLog;
 import org.codehaus.plexus.logging.Logger;
 
+import javax.annotation.Nullable;
 import java.io.File;
 
 final class GroovyScriptUserData {
 
-    static void evaluate(MavenSession session, GradleEnterpriseApi gradleEnterprise, Logger logger) throws MavenExecutionException {
+    static void evaluate(@Nullable MavenSession session, GradleEnterpriseApi gradleEnterprise, Logger logger) throws MavenExecutionException {
+        if (session == null) {
+            logger.warn("Cannot evaluate groovy script when the Maven session in not available");
+            return;
+        }
         File groovyScript = getGroovyScript(session);
         if (groovyScript.exists()) {
             logger.debug("Evaluating custom user data Groovy script: " + groovyScript);

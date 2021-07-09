@@ -3,6 +3,7 @@ package com.gradle;
 import com.gradle.maven.extension.api.scan.BuildScanApi;
 import org.apache.maven.execution.MavenSession;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -26,9 +27,10 @@ import static com.gradle.Utils.urlEncode;
 final class CustomBuildScanEnhancements {
 
     private final BuildScanApi buildScan;
+    @Nullable
     private final MavenSession mavenSession;
 
-    CustomBuildScanEnhancements(BuildScanApi buildScan, MavenSession mavenSession) {
+    CustomBuildScanEnhancements(BuildScanApi buildScan, @Nullable MavenSession mavenSession) {
         this.buildScan = buildScan;
         this.mavenSession = mavenSession;
     }
@@ -73,15 +75,15 @@ final class CustomBuildScanEnhancements {
     private void captureCiMetadata() {
         if (isJenkins() || isHudson()) {
             envVariable("BUILD_URL").ifPresent(url ->
-                buildScan.link(isJenkins() ? "Jenkins build" : "Hudson build", url));
+                    buildScan.link(isJenkins() ? "Jenkins build" : "Hudson build", url));
             envVariable("BUILD_NUMBER").ifPresent(value ->
-                buildScan.value("CI build number", value));
+                    buildScan.value("CI build number", value));
             envVariable("NODE_NAME").ifPresent(value ->
-                addCustomValueAndSearchLink("CI node", value));
+                    addCustomValueAndSearchLink("CI node", value));
             envVariable("JOB_NAME").ifPresent(value ->
-                addCustomValueAndSearchLink("CI job", value));
+                    addCustomValueAndSearchLink("CI job", value));
             envVariable("STAGE_NAME").ifPresent(value ->
-                addCustomValueAndSearchLink("CI stage", value));
+                    addCustomValueAndSearchLink("CI stage", value));
         }
 
         if (isTeamCity()) {
@@ -89,8 +91,8 @@ final class CustomBuildScanEnhancements {
             Optional<String> buildNumber = projectProperty("build.number");
             Optional<String> buildTypeId = projectProperty("teamcity.buildType.id");
             if (teamCityConfigFile.isPresent()
-                && buildNumber.isPresent()
-                && buildTypeId.isPresent()) {
+                    && buildNumber.isPresent()
+                    && buildTypeId.isPresent()) {
                 Properties properties = readPropertiesFile(teamCityConfigFile.get());
                 String teamCityServerUrl = properties.getProperty("teamcity.serverUrl");
                 if (teamCityServerUrl != null) {
@@ -99,35 +101,35 @@ final class CustomBuildScanEnhancements {
                 }
             }
             buildNumber.ifPresent(value ->
-                buildScan.value("CI build number", value));
+                    buildScan.value("CI build number", value));
             buildTypeId.ifPresent(value ->
-                addCustomValueAndSearchLink("CI build config", value));
+                    addCustomValueAndSearchLink("CI build config", value));
             projectProperty("agent.name").ifPresent(value ->
-                addCustomValueAndSearchLink("CI agent", value));
+                    addCustomValueAndSearchLink("CI agent", value));
         }
 
         if (isCircleCI()) {
             envVariable("CIRCLE_BUILD_URL").ifPresent(url ->
-                buildScan.link("CircleCI build", url));
+                    buildScan.link("CircleCI build", url));
             envVariable("CIRCLE_BUILD_NUM").ifPresent(value ->
-                buildScan.value("CI build number", value));
+                    buildScan.value("CI build number", value));
             envVariable("CIRCLE_JOB").ifPresent(value ->
-                addCustomValueAndSearchLink("CI job", value));
+                    addCustomValueAndSearchLink("CI job", value));
             envVariable("CIRCLE_WORKFLOW_ID").ifPresent(value ->
-                addCustomValueAndSearchLink("CI workflow", value));
+                    addCustomValueAndSearchLink("CI workflow", value));
         }
 
         if (isBamboo()) {
             envVariable("bamboo_resultsUrl").ifPresent(url ->
-                buildScan.link("Bamboo build", url));
+                    buildScan.link("Bamboo build", url));
             envVariable("bamboo_buildNumber").ifPresent(value ->
-                buildScan.value("CI build number", value));
+                    buildScan.value("CI build number", value));
             envVariable("bamboo_planName").ifPresent(value ->
-                addCustomValueAndSearchLink("CI plan", value));
+                    addCustomValueAndSearchLink("CI plan", value));
             envVariable("bamboo_buildPlanName").ifPresent(value ->
-                addCustomValueAndSearchLink("CI build plan", value));
+                    addCustomValueAndSearchLink("CI build plan", value));
             envVariable("bamboo_agentId").ifPresent(value ->
-                addCustomValueAndSearchLink("CI agent", value));
+                    addCustomValueAndSearchLink("CI agent", value));
         }
 
         if (isGitHubActions()) {
@@ -137,35 +139,35 @@ final class CustomBuildScanEnhancements {
                 buildScan.link("GitHub Actions build", "https://github.com/" + gitHubRepository.get() + "/actions/runs/" + gitHubRunId.get());
             }
             envVariable("GITHUB_WORKFLOW").ifPresent(value ->
-                addCustomValueAndSearchLink("GitHub workflow", value));
+                    addCustomValueAndSearchLink("GitHub workflow", value));
         }
 
         if (isGitLab()) {
             envVariable("CI_JOB_URL").ifPresent(url ->
-                buildScan.link("GitLab build", url));
+                    buildScan.link("GitLab build", url));
             envVariable("CI_PIPELINE_URL").ifPresent(url ->
-                buildScan.link("GitLab pipeline", url));
+                    buildScan.link("GitLab pipeline", url));
             envVariable("CI_JOB_NAME").ifPresent(value1 ->
-                addCustomValueAndSearchLink("CI job", value1));
+                    addCustomValueAndSearchLink("CI job", value1));
             envVariable("CI_JOB_STAGE").ifPresent(value ->
-                addCustomValueAndSearchLink("CI stage", value));
+                    addCustomValueAndSearchLink("CI stage", value));
         }
 
         if (isTravis()) {
             envVariable("TRAVIS_BUILD_WEB_URL").ifPresent(url ->
-                buildScan.link("Travis build", url));
+                    buildScan.link("Travis build", url));
             envVariable("TRAVIS_BUILD_NUMBER").ifPresent(value ->
-                buildScan.value("CI build number", value));
+                    buildScan.value("CI build number", value));
             envVariable("TRAVIS_JOB_NAME").ifPresent(value ->
-                addCustomValueAndSearchLink("CI job", value));
+                    addCustomValueAndSearchLink("CI job", value));
             envVariable("TRAVIS_EVENT_TYPE").ifPresent(buildScan::tag);
         }
 
         if (isBitrise()) {
             envVariable("BITRISE_BUILD_URL").ifPresent(url ->
-                buildScan.link("Bitrise build", url));
+                    buildScan.link("Bitrise build", url));
             envVariable("BITRISE_BUILD_NUMBER").ifPresent(value ->
-                buildScan.value("CI build number", value));
+                    buildScan.value("CI build number", value));
         }
     }
 
@@ -218,53 +220,53 @@ final class CustomBuildScanEnhancements {
     }
 
     private static final Consumer<BuildScanApi> captureGitMetadataAction =
-        buildScan -> {
-            if (!isGitInstalled()) {
-                return;
-            }
+            buildScan -> {
+                if (!isGitInstalled()) {
+                    return;
+                }
 
-            String gitRepo = execAndGetStdOut("git", "config", "--get", "remote.origin.url");
-            String gitCommitId = execAndGetStdOut("git", "rev-parse", "--verify", "HEAD");
-            String gitCommitShortId = execAndGetStdOut("git", "rev-parse", "--short=8", "--verify", "HEAD");
-            String gitBranchName = execAndGetStdOut("git", "rev-parse", "--abbrev-ref", "HEAD");
-            String gitStatus = execAndGetStdOut("git", "status", "--porcelain");
+                String gitRepo = execAndGetStdOut("git", "config", "--get", "remote.origin.url");
+                String gitCommitId = execAndGetStdOut("git", "rev-parse", "--verify", "HEAD");
+                String gitCommitShortId = execAndGetStdOut("git", "rev-parse", "--short=8", "--verify", "HEAD");
+                String gitBranchName = execAndGetStdOut("git", "rev-parse", "--abbrev-ref", "HEAD");
+                String gitStatus = execAndGetStdOut("git", "status", "--porcelain");
 
-            if (isNotEmpty(gitRepo)) {
-                buildScan.value("Git repository", gitRepo);
-            }
-            if (isNotEmpty(gitCommitId)) {
-                buildScan.value("Git commit id", gitCommitId);
-            }
-            if (isNotEmpty(gitCommitShortId)) {
-                addCustomValueAndSearchLink(buildScan, "Git commit id", "Git commit id short", gitCommitShortId);
-            }
-            if (isNotEmpty(gitBranchName)) {
-                buildScan.tag(gitBranchName);
-                buildScan.value("Git branch", gitBranchName);
-            }
-            if (isNotEmpty(gitStatus)) {
-                buildScan.tag("Dirty");
-                buildScan.value("Git status", gitStatus);
-            }
+                if (isNotEmpty(gitRepo)) {
+                    buildScan.value("Git repository", gitRepo);
+                }
+                if (isNotEmpty(gitCommitId)) {
+                    buildScan.value("Git commit id", gitCommitId);
+                }
+                if (isNotEmpty(gitCommitShortId)) {
+                    addCustomValueAndSearchLink(buildScan, "Git commit id", "Git commit id short", gitCommitShortId);
+                }
+                if (isNotEmpty(gitBranchName)) {
+                    buildScan.tag(gitBranchName);
+                    buildScan.value("Git branch", gitBranchName);
+                }
+                if (isNotEmpty(gitStatus)) {
+                    buildScan.tag("Dirty");
+                    buildScan.value("Git status", gitStatus);
+                }
 
-            if (isNotEmpty(gitRepo) && isNotEmpty(gitCommitId)) {
-                if (gitRepo.contains("github.com/") || gitRepo.contains("github.com:")) {
-                    Matcher matcher = Pattern.compile("(.*)github\\.com[/|:](.*)").matcher(gitRepo);
-                    if (matcher.matches()) {
-                        String rawRepoPath = matcher.group(2);
-                        String repoPath = rawRepoPath.endsWith(".git") ? rawRepoPath.substring(0, rawRepoPath.length() - 4) : rawRepoPath;
-                        buildScan.link("Github source", "https://github.com/" + repoPath + "/tree/" + gitCommitId);
-                    }
-                } else if (gitRepo.contains("gitlab.com/") || gitRepo.contains("gitlab.com:")) {
-                    Matcher matcher = Pattern.compile("(.*)gitlab\\.com[/|:](.*)").matcher(gitRepo);
-                    if (matcher.matches()) {
-                        String rawRepoPath = matcher.group(2);
-                        String repoPath = rawRepoPath.endsWith(".git") ? rawRepoPath.substring(0, rawRepoPath.length() - 4) : rawRepoPath;
-                        buildScan.link("GitLab Source", "https://gitlab.com/" + repoPath + "/-/commit/" + gitCommitId);
+                if (isNotEmpty(gitRepo) && isNotEmpty(gitCommitId)) {
+                    if (gitRepo.contains("github.com/") || gitRepo.contains("github.com:")) {
+                        Matcher matcher = Pattern.compile("(.*)github\\.com[/|:](.*)").matcher(gitRepo);
+                        if (matcher.matches()) {
+                            String rawRepoPath = matcher.group(2);
+                            String repoPath = rawRepoPath.endsWith(".git") ? rawRepoPath.substring(0, rawRepoPath.length() - 4) : rawRepoPath;
+                            buildScan.link("Github source", "https://github.com/" + repoPath + "/tree/" + gitCommitId);
+                        }
+                    } else if (gitRepo.contains("gitlab.com/") || gitRepo.contains("gitlab.com:")) {
+                        Matcher matcher = Pattern.compile("(.*)gitlab\\.com[/|:](.*)").matcher(gitRepo);
+                        if (matcher.matches()) {
+                            String rawRepoPath = matcher.group(2);
+                            String repoPath = rawRepoPath.endsWith(".git") ? rawRepoPath.substring(0, rawRepoPath.length() - 4) : rawRepoPath;
+                            buildScan.link("GitLab Source", "https://gitlab.com/" + repoPath + "/-/commit/" + gitCommitId);
+                        }
                     }
                 }
-            }
-        };
+            };
 
     private static boolean isGitInstalled() {
         return execAndCheckSuccess("git", "--version");
@@ -289,7 +291,7 @@ final class CustomBuildScanEnhancements {
     }
 
     private Optional<String> projectProperty(String name) {
-        return Utils.projectProperty(mavenSession, name);
+        return Optional.ofNullable(mavenSession).flatMap(s -> Utils.projectProperty(s, name));
     }
 
 }
