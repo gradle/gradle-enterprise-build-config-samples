@@ -15,9 +15,9 @@ jobs:
       uses: luizm/action-sh-checker@v0.1.12
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SHELLCHECK_OPTS: -x
+        SHELLCHECK_OPTS: -a -x
       with:
         sh_checker_comment: true
-        sh_checker_exclude: "gradlew mvnw"
+        sh_checker_exclude: "gradlew mvnw build-validation"
         sh_checker_shfmt_disable: true
 
